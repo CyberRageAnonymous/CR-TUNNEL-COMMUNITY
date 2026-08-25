@@ -1,0 +1,35 @@
+name: Enforce config policy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'configs.json'
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Remove invalid entries
+        run: python3 scripts/clean_configs.py
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "config-guard"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add configs.json
+            git commit -m "Enforce community policy [skip ci]"
+            git push
+          else
+            echo "No invalid entries found"
+          fi
