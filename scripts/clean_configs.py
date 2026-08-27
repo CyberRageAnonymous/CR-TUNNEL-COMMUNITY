@@ -12,7 +12,6 @@ Safe on any state:
 """
 
 import json
-import re
 
 CONFIG_FILE = "configs.json"
 
@@ -33,7 +32,7 @@ def is_valid_link(raw):
     link = raw.strip()
     if not link or len(link) > MAX_LINK_LENGTH:
         return False
-    if any(ch.isspace() or ch.iscontrol() for ch in link):
+    if any(ch.isspace() or not ch.isprintable() for ch in link):
         return False
     scheme_end = link.find("://")
     if scheme_end <= 0:
